@@ -1,34 +1,36 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v3"
-	"os"
-	"strconv"
+	"github.com/gofiber/fiber/v3/middleware/cors"
 )
 
+type payload struct {
+	Url  string `json:"url"`
+	Mode string `json:"mode"`
+}
+
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run .cmd/server <port>")
-		return
-	}
-
-	port, err := strconv.Atoi(os.Args[1])
-	if err != nil {
-		fmt.Println("Invalid port")
-		return
-	}
-
-	// init new server
 	app := fiber.New()
+	app.Use(cors.New())
 
-	// get func test
-	app.Get("/", func(c fiber.Ctx) error {
-		return c.SendString(
-			fmt.Sprintf("Hello from backend :%d", port),
-		)
+	app.Post("/scrape", func(c fiber.Ctx) error {
+		var Payload payload
+
+		// get the request
+
+		if err := c.Bind().Body(&Payload); err != nil {
+			return c.Status(400).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+
+		// return the payload to the test
+		return c.Status(200).JSON(fiber.Map{
+			"status":  "ok",
+			"payload": Payload,
+		})
 	})
 
-	// listen
-	app.Listen(":" + strconv.Itoa(port))
+	app.Listen(":3000")
 }
