@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { API_URL } from '#lib';
+
 	import axios from 'axios';
 	let url = $state('');
 	let mode = $state<'text' | 'html' | 'json'>('text');
